@@ -1,0 +1,1697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DRONE-TRAIN | AI-Enabled Drone & Counter-Drone Threat Simulation Trainer</title>
+  <meta name="description" content="Smart India Hackathon 2026 (SIH26247) - AI-Enabled Drone & Counter-Drone Threat Simulation Trainer. Enterprise training prototype for simulated threat detection, classification, decision-making, scoring, AAR, and adaptive difficulty.">
+  
+  <!-- Google Fonts: Inter and JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Local Styles -->
+  <link rel="stylesheet" href="css/styles.css">
+  
+  <!-- Vendor Libraries (Local fallbacks with reliable CDNs) -->
+  <script src="vendor/three.min.js"></script>
+  <script src="vendor/OrbitControls.js"></script>
+  <script src="vendor/chart.min.js"></script>
+</head>
+<body class="theme-light">
+  <!-- Top Operational Banner (Training Disclaimer & Scope Guard) -->
+  <aside class="scope-disclaimer-bar" role="complementary" aria-label="Simulation Environment Notice">
+    <div class="disclaimer-content">
+      <span class="badge-fictional">TRAINING SIMULATION ONLY</span>
+      <span class="disclaimer-text">
+        <strong>SIH 2026 • SIH26247:</strong> All targets, environments, telemetry and engagement decisions are simulated and training-oriented. No operational weapons or defence hardware links.
+      </span>
+      <span class="badge-code">STATUS: SYNTHETIC ENVIRONMENT V2.6</span>
+    </div>
+  </aside>
+
+  <!-- Guided SIH Judge Demo Tour Banner -->
+  <section class="demo-guide-banner" id="demoGuideBanner" style="display: none;" aria-label="Judge Demo Guide">
+    <div class="demo-guide-container">
+      <div class="demo-guide-info">
+        <span class="demo-guide-step" id="demoStepBadge">STEP 1 OF 7</span>
+        <h4 id="demoStepTitle">Executive Dashboard Overview</h4>
+        <p id="demoStepDesc">Observe real-time training metrics, recent sessions, and adaptive recommendations before entering simulation.</p>
+      </div>
+      <div class="demo-guide-actions">
+        <button class="btn btn-secondary btn-sm" id="btnPrevDemoStep">Previous</button>
+        <button class="btn btn-primary btn-sm" id="btnNextDemoStep">Next Step &rarr;</button>
+        <button class="btn btn-ghost btn-sm" id="btnAutoPlayDemo" title="Automatically advance through demo flow">Auto Play</button>
+        <button class="btn btn-icon btn-sm" id="btnCloseDemoBanner" title="Close Tour">&times;</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="app-container">
+    <!-- Left Persistent Enterprise Sidebar -->
+    <aside class="app-sidebar" id="appSidebar">
+      <!-- App Brand / Logo -->
+      <div class="sidebar-header">
+        <div class="brand-logo-mark" aria-hidden="true">
+          <span class="logo-letters">DT</span>
+        </div>
+        <div class="brand-text">
+          <h1 class="brand-title">DRONE-TRAIN</h1>
+          <p class="brand-subtitle">SIMULATION TRAINER</p>
+          <span class="brand-tag">SIH 2026 • SIH26247</span>
+        </div>
+      </div>
+
+      <!-- Navigation Menu -->
+      <nav class="sidebar-nav" aria-label="Main Navigation">
+        <div class="nav-section-label">TRAINING ECOSYSTEM</div>
+        <ul class="nav-list">
+          <li class="nav-item">
+            <button class="nav-link active" data-view="dashboard" id="nav-dashboard">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+              <span>Dashboard</span>
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link nav-highlight" data-view="simulator" id="nav-simulator">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/><circle cx="12" cy="12" r="4"/></svg>
+              <span>Training Simulator</span>
+              <span class="nav-badge-pill">CORE</span>
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" data-view="scenarios" id="nav-scenarios">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+              <span>Scenarios</span>
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" data-view="performance" id="nav-performance">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              <span>Performance</span>
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" data-view="aar" id="nav-aar">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+              <span>After-Action Review</span>
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" data-view="adaptive" id="nav-adaptive">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+              <span>Adaptive Training</span>
+            </button>
+          </li>
+        </ul>
+
+        <div class="nav-section-label">ADMINISTRATION</div>
+        <ul class="nav-list">
+          <li class="nav-item">
+            <button class="nav-link" data-view="trainees" id="nav-trainees">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              <span>Trainees</span>
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" data-view="trainer" id="nav-trainer">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+              <span>Trainer Console</span>
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" data-view="settings" id="nav-settings">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              <span>Settings</span>
+            </button>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Sidebar Footer Status Indicator -->
+      <div class="sidebar-footer">
+        <div class="simulation-mode-card">
+          <div class="mode-label">Simulation Mode</div>
+          <div class="mode-value">Training Environment</div>
+        </div>
+        <div class="system-status-indicator">
+          <span class="status-pulse-dot" aria-hidden="true"></span>
+          <span class="status-text">System Operational</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="app-main">
+      <!-- Top Persistent Navigation Bar -->
+      <header class="app-topbar" id="appTopbar">
+        <div class="topbar-left">
+          <button class="sidebar-toggle-btn" id="sidebarToggle" aria-label="Toggle Sidebar">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+          <div class="breadcrumbs">
+            <span class="breadcrumb-app">DRONE-TRAIN</span>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-view" id="currentViewBreadcrumb">Dashboard</span>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <!-- Audio Toggle Button -->
+          <button class="topbar-btn" id="btnAudioToggle" title="Toggle Simulation Audio Effects">
+            <svg id="iconAudioOn" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+            <svg id="iconAudioOff" style="display:none;" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+          </button>
+
+          <!-- SIH Judge Demo Walkthrough Trigger -->
+          <button class="btn btn-outline btn-sm judge-demo-btn" id="btnStartJudgeDemo">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            <span>Judge Demo Walkthrough</span>
+          </button>
+
+          <!-- Active Session Status Badge -->
+          <div class="session-status-badge" id="topbarSessionBadge">
+            <span class="session-dot"></span>
+            <span class="session-label" id="topbarSessionLabel">Standby / Idle</span>
+          </div>
+
+          <!-- Role Selector Dropdown -->
+          <div class="role-selector-wrapper">
+            <label for="userRoleSelect" class="sr-only">Select Role</label>
+            <select class="role-select" id="userRoleSelect">
+              <option value="trainee" selected>Role: Trainee</option>
+              <option value="trainer">Role: Trainer</option>
+              <option value="admin">Role: Unit Admin</option>
+            </select>
+          </div>
+
+          <!-- Trainee Profile Pill -->
+          <div class="user-profile-pill" id="userProfilePill" title="Current Trainee Profile">
+            <div class="user-avatar">RS</div>
+            <div class="user-details">
+              <span class="user-name" id="topbarUserName">Cadet R. Sharma</span>
+              <span class="user-rank" id="topbarUserRank">Level 4 • TR-C84</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- View Container Area -->
+      <main class="app-content-body" id="appContentBody">
+
+        <!-- =============================================================== -->
+        <!-- VIEW 1: DASHBOARD                                              -->
+        <!-- =============================================================== -->
+        <section class="view-panel" id="view-dashboard">
+          <div class="page-header">
+            <div>
+              <h2 class="page-title">Training Dashboard</h2>
+              <p class="page-subtitle">Monitor training activity, performance metrics, and adaptive engine progress.</p>
+            </div>
+            <div class="page-header-actions">
+              <button class="btn btn-secondary" id="btnDashConfigScenario">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+                <span>Configure Scenario</span>
+              </button>
+              <button class="btn btn-primary" id="btnDashLaunchSim">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+                <span>Launch Training Simulator</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Summary Metric Cards -->
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-header">
+                <span class="metric-title">Active Sessions</span>
+                <span class="metric-icon-box bg-blue-subtle">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#0284c7" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                </span>
+              </div>
+              <div class="metric-value" id="metricActiveSessions">03</div>
+              <div class="metric-footer">
+                <span class="trend-positive">&bull; Multi-trainee active</span>
+                <span class="metric-subtext">Across 2 training rigs</span>
+              </div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-header">
+                <span class="metric-title">Sessions Completed</span>
+                <span class="metric-icon-box bg-slate-subtle">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#475569" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                </span>
+              </div>
+              <div class="metric-value" id="metricCompletedSessions">128</div>
+              <div class="metric-footer">
+                <span class="trend-positive">&uarr; +14 this week</span>
+                <span class="metric-subtext">Unit aggregate</span>
+              </div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-header">
+                <span class="metric-title">Average Detection Time</span>
+                <span class="metric-icon-box bg-amber-subtle">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#d97706" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+                </span>
+              </div>
+              <div class="metric-value" id="metricAvgDetectionTime">3.8 sec</div>
+              <div class="metric-footer">
+                <span class="trend-positive">&darr; 0.4s faster</span>
+                <span class="metric-subtext">Target: &lt; 4.0 sec</span>
+              </div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-header">
+                <span class="metric-title">Classification Accuracy</span>
+                <span class="metric-icon-box bg-indigo-subtle">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#4f46e5" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/></svg>
+                </span>
+              </div>
+              <div class="metric-value" id="metricClassificationAcc">87%</div>
+              <div class="metric-footer">
+                <span class="trend-positive">&uarr; +3% baseline</span>
+                <span class="metric-subtext">Synthetic telemetry</span>
+              </div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-header">
+                <span class="metric-title">Decision Accuracy</span>
+                <span class="metric-icon-box bg-emerald-subtle">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#059669" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                </span>
+              </div>
+              <div class="metric-value" id="metricDecisionAcc">82%</div>
+              <div class="metric-footer">
+                <span class="trend-positive">&uarr; Consistent protocols</span>
+                <span class="metric-subtext">Safe escalation</span>
+              </div>
+            </div>
+
+            <div class="metric-card highlight-card">
+              <div class="metric-header">
+                <span class="metric-title">Training Score</span>
+                <span class="metric-icon-box bg-accent-subtle">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#0284c7" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m10 15 5-3-5-3v6z"/></svg>
+                </span>
+              </div>
+              <div class="metric-value text-accent" id="metricOverallScore">86/100</div>
+              <div class="metric-footer">
+                <span class="badge-success">Proficient</span>
+                <span class="metric-subtext">Adaptive Level 4</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Adaptive Training Recommendation Banner -->
+          <div class="card recommendation-card">
+            <div class="rec-icon-wrapper">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+            </div>
+            <div class="rec-body">
+              <div class="rec-header-row">
+                <span class="rec-tag">ADAPTIVE TRAINING RECOMMENDATION</span>
+                <span class="rec-confidence">Engine Confidence: 94%</span>
+              </div>
+              <h3 class="rec-headline" id="dashRecHeadline">Recommended next session: Moderate-complexity urban scenario with degraded sensor visibility.</h3>
+              <p class="rec-desc" id="dashRecDesc">
+                Trainee demonstrated high baseline classification (87%) under clear rural day conditions. The adaptive engine suggests introducing reduced sensor fidelity and micro-Doppler clutter to stress decision consistency.
+              </p>
+            </div>
+            <div class="rec-action">
+              <button class="btn btn-primary" id="btnLaunchAdaptiveFromDash">
+                <span>Start Adaptive Session</span>
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Two Column: Chart & Recent Table -->
+          <div class="dashboard-grid-two">
+            <!-- Training Performance Chart Card -->
+            <div class="card chart-card">
+              <div class="card-header">
+                <div>
+                  <h3 class="card-title">Training Performance</h3>
+                  <p class="card-subtitle">Multi-session score trajectory across primary assessment competencies.</p>
+                </div>
+                <div class="chart-legend-custom">
+                  <span class="legend-item"><span class="legend-dot" style="background:#0284c7;"></span>Overall</span>
+                  <span class="legend-item"><span class="legend-dot" style="background:#10b981;"></span>Detection</span>
+                  <span class="legend-item"><span class="legend-dot" style="background:#6366f1;"></span>Classification</span>
+                  <span class="legend-item"><span class="legend-dot" style="background:#f59e0b;"></span>Decision</span>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="chart-canvas-container" style="height: 280px; position: relative;">
+                  <canvas id="dashboardPerformanceChart"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recent Training Sessions Table Card -->
+            <div class="card table-card">
+              <div class="card-header">
+                <div>
+                  <h3 class="card-title">Recent Training Sessions</h3>
+                  <p class="card-subtitle">Validated completed runs with rule-based scoring summaries.</p>
+                </div>
+                <button class="btn btn-ghost btn-sm" id="btnViewAllSessions">View All &rarr;</button>
+              </div>
+              <div class="card-body table-responsive">
+                <table class="enterprise-table" id="recentSessionsTable">
+                  <thead>
+                    <tr>
+                      <th>Session</th>
+                      <th>Scenario</th>
+                      <th>Environment</th>
+                      <th>Score</th>
+                      <th>Result</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="recentSessionsTableBody">
+                    <!-- Dynamic Rows Populated via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- VIEW 2: TRAINING SIMULATOR (CORE DEMO SCREEN)                  -->
+        <!-- =============================================================== -->
+        <section class="view-panel" id="view-simulator" style="display: none;">
+          <!-- Simulator Control Banner -->
+          <div class="simulator-meta-banner">
+            <div class="sim-meta-item">
+              <span class="meta-label">ACTIVE SESSION</span>
+              <span class="meta-value font-mono" id="simSessionId">TR-1049</span>
+            </div>
+            <div class="sim-meta-item">
+              <span class="meta-label">SCENARIO</span>
+              <span class="meta-value" id="simScenarioName">Urban Perimeter</span>
+            </div>
+            <div class="sim-meta-item">
+              <span class="meta-label">DIFFICULTY</span>
+              <span class="meta-value badge-pill badge-warning" id="simDifficultyBadge">Moderate</span>
+            </div>
+            <div class="sim-meta-item">
+              <span class="meta-label">ENVIRONMENT</span>
+              <span class="meta-value" id="simEnvironmentLabel">Urban • Day</span>
+            </div>
+            <div class="sim-meta-item">
+              <span class="meta-label">SENSOR CONDITION</span>
+              <span class="meta-value badge-pill badge-info" id="simSensorConditionBadge">Normal</span>
+            </div>
+            <div class="sim-meta-item sim-timer-box">
+              <span class="meta-label">ELAPSED TIME</span>
+              <span class="meta-value font-mono text-mono-lg" id="simTimerDisplay">00:00.0</span>
+            </div>
+            <div class="sim-meta-actions">
+              <button class="btn btn-outline btn-sm" id="btnRestartSimulation" title="Reset scenario">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                <span>Reset</span>
+              </button>
+              <button class="btn btn-primary btn-sm" id="btnTriggerNewThreat">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                <span>Inject Threat</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Main Simulator Split View -->
+          <div class="simulator-layout-grid">
+            <!-- Left: 3D Simulated Environment Viewport -->
+            <div class="sim-viewport-wrapper">
+              <!-- Viewport Overlay Toolbar -->
+              <div class="viewport-hud-toolbar">
+                <div class="hud-left-tags">
+                  <span class="hud-tag hud-status" id="hudSystemStatus">SURVEILLANCE RADAR: ACTIVE</span>
+                  <span class="hud-tag font-mono" id="hudGridCoords">GRID: SEC-04B [E73.8° / N18.5°]</span>
+                </div>
+                <div class="hud-center-controls">
+                  <!-- Environment Quick-Switch Controls -->
+                  <div class="btn-group-toggle" role="group" aria-label="Environment Preset">
+                    <button class="btn-pill-toggle active" data-env="urban">Urban</button>
+                    <button class="btn-pill-toggle" data-env="rural">Rural</button>
+                    <button class="btn-pill-toggle" data-env="open">Open</button>
+                    <button class="btn-pill-toggle" data-env="mixed">Mixed</button>
+                  </div>
+                </div>
+                <div class="hud-right-cameras">
+                  <div class="camera-mode-toggle" role="group" aria-label="Camera Perspective">
+                    <button class="cam-btn active" id="btnCamPerspective" title="Tactical Free Orbit">
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0z"/></svg>
+                      <span>Tactical</span>
+                    </button>
+                    <button class="cam-btn" id="btnCamTower" title="Observation Tower Vantage">
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 22 22 22 12 2"/></svg>
+                      <span>Perimeter Tower</span>
+                    </button>
+                    <button class="cam-btn" id="btnCamRadar" title="Top-Down Radar Map">
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                      <span>Radar Overhead</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 3D Canvas Mount Point -->
+              <div class="sim-canvas-container" id="simCanvasContainer">
+                <!-- Three.js Canvas injected here -->
+                
+                <!-- Sensor Degraded Static Noise Overlay (Hidden when Normal) -->
+                <div class="sensor-static-overlay" id="sensorStaticOverlay" style="display:none;"></div>
+                
+                <!-- HUD Reticle Overlay for Detected Drone -->
+                <div class="drone-hud-reticle" id="droneHudReticle" style="display: none;">
+                  <div class="reticle-box">
+                    <span class="reticle-corner tl"></span>
+                    <span class="reticle-corner tr"></span>
+                    <span class="reticle-corner bl"></span>
+                    <span class="reticle-corner br"></span>
+                    <div class="reticle-tag" id="reticleThreatId">SIM-DRN-04</div>
+                    <div class="reticle-telemetry font-mono" id="reticleTelemetry">R: 420m | AZ: 045° | ALT: 65m</div>
+                  </div>
+                </div>
+
+                <!-- Simulation Radar Sweep Compass Widget (Bottom Left Overlay) -->
+                <div class="radar-mini-widget" id="radarMiniWidget">
+                  <div class="radar-sweep-beam"></div>
+                  <div class="radar-rings">
+                    <span class="ring ring-1"></span>
+                    <span class="ring ring-2"></span>
+                    <span class="ring ring-3"></span>
+                  </div>
+                  <div class="radar-blip" id="radarThreatBlip" style="display: none;"></div>
+                  <span class="radar-cardinal n">N</span>
+                  <span class="radar-cardinal s">S</span>
+                  <span class="radar-cardinal e">E</span>
+                  <span class="radar-cardinal w">W</span>
+                </div>
+
+                <!-- Viewport State Overlay / Instructions -->
+                <div class="viewport-instruction-pill" id="viewportInstruction">
+                  <span class="pill-dot blink-dot"></span>
+                  <span id="viewportInstructionText">Scanning airspace. Await simulated threat intrusion or click "Inject Threat".</span>
+                </div>
+              </div>
+
+              <!-- Viewport Footer Telemetry Strip -->
+              <div class="viewport-telemetry-bar">
+                <div class="telemetry-item">
+                  <span class="t-label">RADAR SCAN RATE</span>
+                  <span class="t-value font-mono">60 RPM • 3.2 GHz</span>
+                </div>
+                <div class="telemetry-item">
+                  <span class="t-label">BEARING</span>
+                  <span class="t-value font-mono" id="barBearingValue">045° NE</span>
+                </div>
+                <div class="telemetry-item">
+                  <span class="t-label">ESTIMATED VELOCITY</span>
+                  <span class="t-value font-mono" id="barVelocityValue">14.2 m/s</span>
+                </div>
+                <div class="telemetry-item">
+                  <span class="t-label">OPTICAL SENSOR</span>
+                  <span class="t-value font-mono" id="barOpticalStatus">EO/IR SYNTHETIC</span>
+                </div>
+                <div class="telemetry-item">
+                  <span class="t-label">CLUTTER FILTER</span>
+                  <span class="t-value font-mono text-emerald">MTI ENGAGED</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: Interactive Workflow & Assessment Panel -->
+            <div class="sim-workflow-panel">
+              <!-- Workflow Step Indicator -->
+              <div class="workflow-stepper">
+                <div class="step-node active" id="stepNode1">
+                  <span class="step-num">1</span>
+                  <span class="step-label">DETECT</span>
+                </div>
+                <div class="step-connector" id="stepConn1"></div>
+                <div class="step-node" id="stepNode2">
+                  <span class="step-num">2</span>
+                  <span class="step-label">CLASSIFY</span>
+                </div>
+                <div class="step-connector" id="stepConn2"></div>
+                <div class="step-node" id="stepNode3">
+                  <span class="step-num">3</span>
+                  <span class="step-label">DECIDE</span>
+                </div>
+                <div class="step-connector" id="stepConn3"></div>
+                <div class="step-node" id="stepNode4">
+                  <span class="step-num">4</span>
+                  <span class="step-label">SCORE</span>
+                </div>
+              </div>
+
+              <!-- Interactive Card 1: DETECTION PHASE -->
+              <div class="workflow-card active" id="cardDetectionPhase">
+                <div class="card-header-clean">
+                  <div class="phase-badge bg-amber-subtle text-amber">PHASE 1 : DETECTION</div>
+                  <span class="threat-status-tag" id="threatStatusTag">NO THREAT DETECTED</span>
+                </div>
+                <div class="card-body-clean">
+                  <div class="detection-waiting-state" id="detectionWaitingState">
+                    <div class="scan-radar-visual">
+                      <div class="scan-circle"></div>
+                    </div>
+                    <p class="guide-text">Perimeter radar active. Maintain situational surveillance across designated sector.</p>
+                    <p class="sub-guide-text">When a simulated threat enters the zone, press the detection button or click the object in the viewport.</p>
+                    <button class="btn btn-outline btn-block mt-3" id="btnSpawnTestThreat">
+                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                      <span>Simulate Threat Intrusion Now</span>
+                    </button>
+                  </div>
+
+                  <!-- Threat Active State -->
+                  <div class="threat-alert-box" id="threatAlertBox" style="display: none;">
+                    <div class="alert-banner-red">
+                      <span class="alert-icon-pulse">&bull;</span>
+                      <strong>SIMULATED THREAT DETECTED</strong>
+                    </div>
+
+                    <div class="threat-spec-grid">
+                      <div class="spec-cell">
+                        <span class="spec-label">Detection Time:</span>
+                        <span class="spec-val font-mono text-amber" id="specDetectionTime">2.8 sec</span>
+                      </div>
+                      <div class="spec-cell">
+                        <span class="spec-label">Threat ID:</span>
+                        <span class="spec-val font-mono" id="specThreatId">SIM-DRN-04</span>
+                      </div>
+                      <div class="spec-cell">
+                        <span class="spec-label">Direction:</span>
+                        <span class="spec-val font-mono" id="specDirection">North-East</span>
+                      </div>
+                      <div class="spec-cell">
+                        <span class="spec-label">Range:</span>
+                        <span class="spec-val font-mono" id="specRange">420 m</span>
+                      </div>
+                      <div class="spec-cell">
+                        <span class="spec-label">Altitude:</span>
+                        <span class="spec-val font-mono" id="specAltitude">65 m</span>
+                      </div>
+                      <div class="spec-cell">
+                        <span class="spec-label">Radial Speed:</span>
+                        <span class="spec-val font-mono" id="specSpeed">14.2 m/s</span>
+                      </div>
+                    </div>
+
+                    <div class="action-prompt-box">
+                      <p>Trainee action required: Confirm sensor detection acknowledgment.</p>
+                      <button class="btn btn-primary btn-block btn-lg" id="btnAcknowledgeDetection">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>CONFIRM THREAT DETECTION</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Interactive Card 2: CLASSIFICATION PHASE -->
+              <div class="workflow-card" id="cardClassificationPhase" style="display: none;">
+                <div class="card-header-clean">
+                  <div class="phase-badge bg-indigo-subtle text-indigo">PHASE 2 : CLASSIFICATION</div>
+                  <span class="sensor-readout-pill">Synthetic Telemetry Verified</span>
+                </div>
+                <div class="card-body-clean">
+                  <h4 class="classification-question">What type of simulated threat is this?</h4>
+                  <p class="helper-text">Analyze fictional sensor cues (radar micro-Doppler signature, acoustic profile, optical silhouette):</p>
+
+                  <!-- Fictional Telemetry Sensor Tabs -->
+                  <div class="telemetry-evidence-card">
+                    <div class="evidence-row">
+                      <span class="evidence-label">Acoustic Signature:</span>
+                      <span class="evidence-value font-mono" id="evidenceAcoustic">High-frequency multi-rotor electric buzz (840 Hz harmonic)</span>
+                    </div>
+                    <div class="evidence-row">
+                      <span class="evidence-label">RF Spectrum:</span>
+                      <span class="evidence-value font-mono" id="evidenceRF">2.437 GHz ISM Band • Fictional FHSS Telemetry</span>
+                    </div>
+                    <div class="evidence-row">
+                      <span class="evidence-label">Micro-Doppler:</span>
+                      <span class="evidence-value font-mono" id="evidenceDoppler">4-blade rotation modulation detected • Small RCS (0.012 m²)</span>
+                    </div>
+                  </div>
+
+                  <!-- Classification Option Radios / Cards -->
+                  <div class="classification-options-grid" id="classificationOptionsGroup">
+                    <label class="classification-option-card" for="optClassSmall">
+                      <input type="radio" name="threatClassification" id="optClassSmall" value="Small UAV">
+                      <div class="opt-content">
+                        <div class="opt-title">Small UAV</div>
+                        <div class="opt-desc">Quad / Hexacopter, low payload, high agility, localized perimeter risk.</div>
+                      </div>
+                    </label>
+
+                    <label class="classification-option-card" for="optClassLarge">
+                      <input type="radio" name="threatClassification" id="optClassLarge" value="Large UAV">
+                      <div class="opt-content">
+                        <div class="opt-title">Large UAV</div>
+                        <div class="opt-desc">Fixed-wing or heavy platform, sustained endurance, high-altitude flight.</div>
+                      </div>
+                    </label>
+
+                    <label class="classification-option-card" for="optClassUnknown">
+                      <input type="radio" name="threatClassification" id="optClassUnknown" value="Unknown Object">
+                      <div class="opt-content">
+                        <div class="opt-title">Unknown Object</div>
+                        <div class="opt-desc">Inconclusive signature, potential avian or weather artifact clutter.</div>
+                      </div>
+                    </label>
+
+                    <label class="classification-option-card" for="optClassSwarm">
+                      <input type="radio" name="threatClassification" id="optClassSwarm" value="Swarm Group">
+                      <div class="opt-content">
+                        <div class="opt-title">Swarm Group</div>
+                        <div class="opt-desc">Multiple coordinated micro-nodes flying in close spatial formation.</div>
+                      </div>
+                    </label>
+                  </div>
+
+                  <button class="btn btn-primary btn-block btn-lg mt-3" id="btnConfirmClassification" disabled>
+                    <span>CONFIRM CLASSIFICATION</span>
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Interactive Card 3: TRAINING DECISION PHASE -->
+              <div class="workflow-card" id="cardDecisionPhase" style="display: none;">
+                <div class="card-header-clean">
+                  <div class="phase-badge bg-emerald-subtle text-emerald">PHASE 3 : TRAINING DECISION</div>
+                  <span class="safe-protocol-pill">Safe Training Protocols Only</span>
+                </div>
+                <div class="card-body-clean">
+                  <h4 class="classification-question">Select the appropriate simulated training response.</h4>
+                  <p class="helper-text">Choose the safe procedural action aligned with training rules of engagement:</p>
+
+                  <div class="decision-options-list" id="decisionOptionsGroup">
+                    <label class="decision-option-card" for="optDecideObserve">
+                      <input type="radio" name="trainingDecision" id="optDecideObserve" value="Continue observation">
+                      <div class="opt-content">
+                        <div class="opt-title">Continue observation</div>
+                        <div class="opt-desc">Maintain passive track, log flight path vector without escalating alarm status.</div>
+                      </div>
+                    </label>
+
+                    <label class="decision-option-card" for="optDecideMonitor">
+                      <input type="radio" name="trainingDecision" id="optDecideMonitor" value="Increase monitoring">
+                      <div class="opt-content">
+                        <div class="opt-title">Increase monitoring</div>
+                        <div class="opt-desc">Activate secondary EO/IR sensor slew, lock telemetry, and prepare situational trace.</div>
+                      </div>
+                    </label>
+
+                    <label class="decision-option-card" for="optDecideSupervisor">
+                      <input type="radio" name="trainingDecision" id="optDecideSupervisor" value="Notify training supervisor">
+                      <div class="opt-content">
+                        <div class="opt-title">Notify training supervisor</div>
+                        <div class="opt-desc">Transmit synthetic threat packet to instructor console for perimeter advisory.</div>
+                      </div>
+                    </label>
+
+                    <label class="decision-option-card" for="optDecideReview">
+                      <input type="radio" name="trainingDecision" id="optDecideReview" value="Mark scenario for review">
+                      <div class="opt-content">
+                        <div class="opt-title">Mark scenario for review</div>
+                        <div class="opt-desc">Flag anomalous trajectory pattern for comprehensive post-session After-Action Review.</div>
+                      </div>
+                    </label>
+                  </div>
+
+                  <button class="btn btn-primary btn-block btn-lg mt-3" id="btnSubmitDecision" disabled>
+                    <span>SUBMIT TRAINING DECISION</span>
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Interactive Card 4: SCORING PHASE -->
+              <div class="workflow-card" id="cardScoringPhase" style="display: none;">
+                <div class="card-header-clean">
+                  <div class="phase-badge bg-accent-subtle text-accent">PHASE 4 : SESSION SCORE</div>
+                  <span class="badge-success" id="scoreRatingBadge">EXCELLENT</span>
+                </div>
+                <div class="card-body-clean">
+                  <!-- Transparent Score Ring & Total -->
+                  <div class="score-summary-hero">
+                    <div class="score-big-number font-mono">
+                      <span id="finalScoreVal">87</span>
+                      <span class="score-denominator">/ 100</span>
+                    </div>
+                    <p class="score-grade-text" id="finalScoreGrade">Strong detection cadence and accurate classification.</p>
+                  </div>
+
+                  <!-- Score Factor Breakdown -->
+                  <div class="score-breakdown-list">
+                    <div class="factor-row">
+                      <div class="factor-label-group">
+                        <span class="factor-name">Detection Speed</span>
+                        <span class="factor-weight">(30 pts max)</span>
+                      </div>
+                      <div class="factor-bar-wrapper">
+                        <div class="factor-bar-fill" id="barScoreDetection" style="width: 92%;"></div>
+                      </div>
+                      <span class="factor-points font-mono" id="ptsScoreDetection">28</span>
+                    </div>
+
+                    <div class="factor-row">
+                      <div class="factor-label-group">
+                        <span class="factor-name">Classification Accuracy</span>
+                        <span class="factor-weight">(30 pts max)</span>
+                      </div>
+                      <div class="factor-bar-wrapper">
+                        <div class="factor-bar-fill" id="barScoreClassification" style="width: 85%;"></div>
+                      </div>
+                      <span class="factor-points font-mono" id="ptsScoreClassification">30</span>
+                    </div>
+
+                    <div class="factor-row">
+                      <div class="factor-label-group">
+                        <span class="factor-name">Decision Appropriateness</span>
+                        <span class="factor-weight">(25 pts max)</span>
+                      </div>
+                      <div class="factor-bar-wrapper">
+                        <div class="factor-bar-fill" id="barScoreDecision" style="width: 84%;"></div>
+                      </div>
+                      <span class="factor-points font-mono" id="ptsScoreDecision">21</span>
+                    </div>
+
+                    <div class="factor-row">
+                      <div class="factor-label-group">
+                        <span class="factor-name">Response Time & Consistency</span>
+                        <span class="factor-weight">(15 pts max)</span>
+                      </div>
+                      <div class="factor-bar-wrapper">
+                        <div class="factor-bar-fill" id="barScoreConsistency" style="width: 88%;"></div>
+                      </div>
+                      <span class="factor-points font-mono" id="ptsScoreConsistency">13</span>
+                    </div>
+                  </div>
+
+                  <!-- Action Buttons -->
+                  <div class="scoring-actions-row">
+                    <button class="btn btn-secondary" id="btnRestartSameScenario">Practice Again</button>
+                    <button class="btn btn-primary" id="btnProceedToAAR">
+                      <span>Proceed to After-Action Review (AAR)</span>
+                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- VIEW 3: AFTER-ACTION REVIEW (AAR)                              -->
+        <!-- =============================================================== -->
+        <section class="view-panel" id="view-aar" style="display: none;">
+          <div class="page-header">
+            <div>
+              <div class="session-badge-pill" id="aarSessionTag">Session TR-1049 &bull; Performance Review</div>
+              <h2 class="page-title">After-Action Review</h2>
+              <p class="page-subtitle">Comprehensive post-session evaluation, chronological event telemetry, and trainer feedback.</p>
+            </div>
+            <div class="page-header-actions">
+              <button class="btn btn-secondary" id="btnPrintAAR">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                <span>Export AAR Report</span>
+              </button>
+              <button class="btn btn-outline" id="btnAARStartNextScenario">
+                <span>Start Next Scenario</span>
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+              <button class="btn btn-primary" id="btnAARProceedToAdaptive">
+                <span>View Adaptive Recommendation</span>
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- AAR Overall Score Banner Card -->
+          <div class="card aar-summary-card">
+            <div class="aar-score-hero">
+              <span class="aar-score-pill">OVERALL SCORE</span>
+              <div class="aar-score-num font-mono" id="aarOverallScoreDisplay">87 / 100</div>
+              <span class="badge-success badge-lg" id="aarScoreGradeBadge">Grade: A • Excellent</span>
+            </div>
+            <div class="aar-score-details">
+              <div class="detail-stat">
+                <span class="d-label">Scenario</span>
+                <span class="d-val" id="aarScenarioName">Urban Perimeter</span>
+              </div>
+              <div class="detail-stat">
+                <span class="d-label">Detection Latency</span>
+                <span class="d-val font-mono" id="aarDetectionLatency">2.8 sec (Target: &lt; 4.0s)</span>
+              </div>
+              <div class="detail-stat">
+                <span class="d-label">Classification Result</span>
+                <span class="d-val text-emerald font-semibold" id="aarClassificationResult">Correct (Small UAV)</span>
+              </div>
+              <div class="detail-stat">
+                <span class="d-label">Response Protocol</span>
+                <span class="d-val" id="aarDecisionResult">Increase monitoring (Appropriate)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Chronological Event Timeline -->
+          <div class="card timeline-card">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title">Event Timeline</h3>
+                <p class="card-subtitle">Exact chronological execution sequence with millisecond timestamps.</p>
+              </div>
+              <span class="badge-fictional">DETERMINISTIC SIMULATION RECORD</span>
+            </div>
+            <div class="card-body">
+              <div class="aar-timeline" id="aarTimelineList">
+                <!-- Timeline items populated dynamically -->
+              </div>
+            </div>
+          </div>
+
+          <!-- What Went Well & Areas to Improve Grid -->
+          <div class="dashboard-grid-two">
+            <div class="card evaluation-card card-positive">
+              <div class="card-header">
+                <div class="eval-title-group">
+                  <span class="eval-indicator-circle green-circle">&check;</span>
+                  <h3 class="card-title text-emerald">What went well</h3>
+                </div>
+              </div>
+              <div class="card-body">
+                <ul class="aar-bullet-list" id="aarWentWellList">
+                  <li><strong>Fast threat detection:</strong> Trainee acknowledged synthetic intruder in 2.8 sec, well under the 4.0 sec target threshold.</li>
+                  <li><strong>Correct threat classification:</strong> Accurately recognized Small UAV profile based on multi-rotor acoustic harmonics and low RCS signature.</li>
+                  <li><strong>Consistent decision-making:</strong> Selected appropriate procedural response ("Increase monitoring") without false alarm escalation.</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="card evaluation-card card-warning">
+              <div class="card-header">
+                <div class="eval-title-group">
+                  <span class="eval-indicator-circle amber-circle">!</span>
+                  <h3 class="card-title text-amber">Areas to improve</h3>
+                </div>
+              </div>
+              <div class="card-body">
+                <ul class="aar-bullet-list" id="aarImproveList">
+                  <li><strong>Decision verification latency:</strong> Protocol selection took 4.2 seconds; aim for sub-3.0 second response under high-tempo scenarios.</li>
+                  <li><strong>Reduced sensor resilience:</strong> Historic data shows 12% accuracy drop during degraded visibility/fog conditions.</li>
+                  <li><strong>Camera perspective rotation:</strong> Trainee remained in fixed tactical view rather than verifying azimuth in overhead radar mode.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Trainer Feedback & Notes Input Section -->
+          <div class="card feedback-card">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title">Trainer Feedback</h3>
+                <p class="card-subtitle">Instructor observations, coaching notes, and debriefing tags.</p>
+              </div>
+              <span class="badge-pill badge-slate">TRAINER CONSOLE CONNECTED</span>
+            </div>
+            <div class="card-body">
+              <div class="feedback-tags-row">
+                <span class="tag-label">Quick Tags:</span>
+                <button class="feedback-tag active" data-tag="Fast detection">&check; Fast detection</button>
+                <button class="feedback-tag active" data-tag="Accurate RCS analysis">&check; Accurate RCS analysis</button>
+                <button class="feedback-tag" data-tag="Watch sensor degradation">+ Watch sensor degradation</button>
+                <button class="feedback-tag" data-tag="Review swarm protocol">+ Review swarm protocol</button>
+                <button class="feedback-tag" data-tag="Consolidate Level 4">+ Consolidate Level 4</button>
+              </div>
+              <div class="form-group mt-3">
+                <label for="aarTrainerNotes" class="form-label">Instructor Debrief Notes:</label>
+                <textarea class="form-textarea" id="aarTrainerNotes" rows="3" placeholder="Enter debrief remarks for this trainee...">Good detection performance. Focus on maintaining classification accuracy under reduced visibility.</textarea>
+              </div>
+              <div class="feedback-action-bar">
+                <span class="text-subtle text-xs" id="aarSaveStatus">Feedback synced with trainee profile</span>
+                <button class="btn btn-primary btn-sm" id="btnSaveTrainerFeedback">Save Trainer Remarks</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- VIEW 4: ADAPTIVE TRAINING ENGINE                               -->
+        <!-- =============================================================== -->
+        <section class="view-panel" id="view-adaptive" style="display: none;">
+          <div class="page-header">
+            <div>
+              <h2 class="page-title">Adaptive Training</h2>
+              <p class="page-subtitle">Performance-driven procedural difficulty engine and intelligent syllabus progression.</p>
+            </div>
+            <div class="page-header-actions">
+              <button class="btn btn-secondary" id="btnResetAdaptiveModel">Reset Model Baseline</button>
+              <button class="btn btn-primary" id="btnLaunchAdaptiveScenario">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                <span>Launch Adapted Scenario</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Adaptive Status Hero Card -->
+          <div class="adaptive-hero-grid">
+            <div class="card adaptive-level-card">
+              <span class="adaptive-tag">CURRENT TRAINING LEVEL</span>
+              <div class="adaptive-level-display">
+                <span class="level-num" id="adaptiveCurrentLevelNum">4</span>
+                <div class="level-meta">
+                  <h3 class="level-name" id="adaptiveCurrentLevelName">Level 4 — Intermediate</h3>
+                  <p class="level-desc">Single/dual threats, moderate clutter, standard sensor noise.</p>
+                </div>
+              </div>
+              <div class="progress-bar-container">
+                <div class="progress-label">
+                  <span>Level 4 Mastery</span>
+                  <span id="levelMasteryPercent">78%</span>
+                </div>
+                <div class="progress-track">
+                  <div class="progress-fill" style="width: 78%;"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card adaptive-recommendation-card">
+              <div class="rec-card-header">
+                <span class="rec-badge-highlight">ADAPTIVE ENGINE EVALUATION</span>
+                <span class="rule-trigger-pill text-emerald">Rule Trigger: Score &ge; 85</span>
+              </div>
+              <div class="recommended-level-box">
+                <span class="rec-label">Recommended Difficulty:</span>
+                <span class="rec-level-value" id="adaptiveRecommendedLevel">Level 5 — Advanced</span>
+              </div>
+              <div class="rec-reasoning-box">
+                <div class="reasoning-title">Automated AI Rationale:</div>
+                <blockquote class="reasoning-quote" id="adaptiveReasoningQuote">
+                  "Recent sessions show strong detection accuracy and stable decision performance. The next scenario introduces increased environmental variation and degraded sensor visibility."
+                </blockquote>
+              </div>
+            </div>
+          </div>
+
+          <!-- Adaptive Rule Engine Visualization -->
+          <div class="card rules-card">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title">Adaptive Progression Logic</h3>
+                <p class="card-subtitle">Transparent rule-based state transitions calibrated to trainee mastery thresholds.</p>
+              </div>
+              <span class="badge-fictional">PERFORMANCE DETERMINISTIC</span>
+            </div>
+            <div class="card-body">
+              <div class="adaptive-rules-diagram">
+                <div class="rule-box rule-up">
+                  <div class="rule-condition">SCORE &ge; 85 (Repeated)</div>
+                  <div class="rule-arrow">&darr;</div>
+                  <div class="rule-outcome text-emerald">&uarr; Increase Difficulty (+1 Level)</div>
+                  <div class="rule-desc">Introduce degraded sensors, dual threats, or higher speed.</div>
+                </div>
+                <div class="rule-box rule-hold active-rule">
+                  <div class="rule-condition">SCORE 65 &ndash; 84</div>
+                  <div class="rule-arrow">&darr;</div>
+                  <div class="rule-outcome text-amber">&harr; Maintain Current Level</div>
+                  <div class="rule-desc">Reinforce scenario familiarity and decision consistency.</div>
+                </div>
+                <div class="rule-box rule-down">
+                  <div class="rule-condition">SCORE &lt; 65</div>
+                  <div class="rule-arrow">&darr;</div>
+                  <div class="rule-outcome text-rose">&darr; Reduce Difficulty (-1 Level)</div>
+                  <div class="rule-desc">Focus on baseline detection speed and clear conditions.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Adjustable Factor Matrix (Trainer Controls) -->
+          <div class="card matrix-card">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title">Adjustable Training Factors</h3>
+                <p class="card-subtitle">Tuning parameters dynamically weighted by the adaptive system.</p>
+              </div>
+              <button class="btn btn-secondary btn-sm" id="btnResetFactors">Reset to Recommended</button>
+            </div>
+            <div class="card-body">
+              <div class="factors-sliders-grid">
+                <div class="factor-slider-group">
+                  <div class="slider-header">
+                    <label for="factorComplexity" class="factor-name">Environment Complexity</label>
+                    <span class="slider-val" id="valComplexity">Urban Dense</span>
+                  </div>
+                  <input type="range" class="form-range" id="factorComplexity" min="1" max="5" value="4">
+                  <div class="slider-ticks">
+                    <span>Rural</span>
+                    <span>Open</span>
+                    <span>Mixed</span>
+                    <span>Urban</span>
+                    <span>Extreme</span>
+                  </div>
+                </div>
+
+                <div class="factor-slider-group">
+                  <div class="slider-header">
+                    <label for="factorVisibility" class="factor-name">Sensor Visibility</label>
+                    <span class="slider-val" id="valVisibility">Degraded (Fog/Noise)</span>
+                  </div>
+                  <input type="range" class="form-range" id="factorVisibility" min="1" max="3" value="3">
+                  <div class="slider-ticks">
+                    <span>Normal (Day)</span>
+                    <span>Reduced (Night)</span>
+                    <span>Degraded (Noise)</span>
+                  </div>
+                </div>
+
+                <div class="factor-slider-group">
+                  <div class="slider-header">
+                    <label for="factorThreatCount" class="factor-name">Simulated Threat Pattern</label>
+                    <span class="slider-val" id="valThreatCount">Multiple Targets</span>
+                  </div>
+                  <input type="range" class="form-range" id="factorThreatCount" min="1" max="3" value="2">
+                  <div class="slider-ticks">
+                    <span>Single Drone</span>
+                    <span>Multiple Ingress</span>
+                    <span>Swarm Group</span>
+                  </div>
+                </div>
+
+                <div class="factor-slider-group">
+                  <div class="slider-header">
+                    <label for="factorRandomness" class="factor-name">Scenario Randomness</label>
+                    <span class="slider-val" id="valRandomness">75% High</span>
+                  </div>
+                  <input type="range" class="form-range" id="factorRandomness" min="0" max="100" value="75">
+                  <div class="slider-ticks">
+                    <span>Deterministic</span>
+                    <span>50%</span>
+                    <span>100% High Seed</span>
+                  </div>
+                </div>
+
+                <div class="factor-slider-group">
+                  <div class="slider-header">
+                    <label for="factorTimePressure" class="factor-name">Time Pressure Window</label>
+                    <span class="slider-val" id="valTimePressure">Accelerated (3.0s)</span>
+                  </div>
+                  <input type="range" class="form-range" id="factorTimePressure" min="1" max="4" value="3">
+                  <div class="slider-ticks">
+                    <span>Relaxed (6s)</span>
+                    <span>Standard (4s)</span>
+                    <span>Fast (3s)</span>
+                    <span>Critical (2s)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- VIEW 5: SCENARIOS (LIBRARY & GENERATOR)                        -->
+        <!-- =============================================================== -->
+        <section class="view-panel" id="view-scenarios" style="display: none;">
+          <div class="page-header">
+            <div>
+              <h2 class="page-title">Scenario Library</h2>
+              <p class="page-subtitle">Standardized training modules and procedural scenario generator.</p>
+            </div>
+            <div class="page-header-actions">
+              <button class="btn btn-primary" id="btnOpenScenarioGenerator">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <span>Configure Custom Scenario</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Filter Tabs -->
+          <div class="scenario-filter-bar">
+            <div class="filter-pills" role="tablist">
+              <button class="filter-pill active" data-filter="all">All Modules (6)</button>
+              <button class="filter-pill" data-filter="Easy">Easy</button>
+              <button class="filter-pill" data-filter="Moderate">Moderate</button>
+              <button class="filter-pill" data-filter="Hard">Hard</button>
+              <button class="filter-pill" data-filter="Advanced">Advanced</button>
+            </div>
+            <div class="search-input-wrapper">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" class="search-input" id="scenarioSearchInput" placeholder="Filter scenarios...">
+            </div>
+          </div>
+
+          <!-- Scenario Cards Grid -->
+          <div class="scenarios-grid" id="scenariosGridContainer">
+            <!-- Dynamic Cards Populated via JS -->
+          </div>
+
+          <!-- Custom Scenario Configuration Drawer / Section -->
+          <div class="card config-scenario-card mt-4" id="scenarioGeneratorBox">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title">Scenario Configuration Controls</h3>
+                <p class="card-subtitle">Procedural scenario synthesis parameters with reproducible seed generation.</p>
+              </div>
+              <span class="badge-pill badge-indigo font-mono" id="currentSeedLabel">SEED-9842X</span>
+            </div>
+            <div class="card-body">
+              <div class="config-controls-grid">
+                <div class="form-group">
+                  <label for="cfgEnvSelect" class="form-label">Environment</label>
+                  <select class="form-select" id="cfgEnvSelect">
+                    <option value="Urban">Urban</option>
+                    <option value="Rural">Rural</option>
+                    <option value="Open">Open Terrain</option>
+                    <option value="Mixed">Mixed Terrain</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="cfgTimeSelect" class="form-label">Time / Illumination</label>
+                  <select class="form-select" id="cfgTimeSelect">
+                    <option value="Day">Day</option>
+                    <option value="Night">Night</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="cfgSensorSelect" class="form-label">Sensor Condition</label>
+                  <select class="form-select" id="cfgSensorSelect">
+                    <option value="Normal">Normal</option>
+                    <option value="Reduced">Reduced (Fog/Haze)</option>
+                    <option value="Degraded">Degraded (RF Noise)</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="cfgPatternSelect" class="form-label">Threat Pattern</label>
+                  <select class="form-select" id="cfgPatternSelect">
+                    <option value="Single">Single Drone</option>
+                    <option value="Multiple">Multiple Targets</option>
+                    <option value="Simulated Swarm">Simulated Swarm</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="cfgDifficultySelect" class="form-label">Difficulty</label>
+                  <select class="form-select" id="cfgDifficultySelect">
+                    <option value="Easy">Easy</option>
+                    <option value="Moderate" selected>Moderate</option>
+                    <option value="Hard">Hard</option>
+                    <option value="Advanced">Advanced</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Randomization & Seed</label>
+                  <div class="seed-input-row">
+                    <input type="text" class="form-input font-mono" id="cfgSeedInput" value="SEED-9842X">
+                    <button class="btn btn-secondary btn-sm" id="btnRollNewSeed" title="Generate New Random Seed">Reroll</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Live Configuration Preview Box -->
+              <div class="config-live-preview">
+                <div class="preview-header">
+                  <span class="preview-title">Generated Scenario Specification:</span>
+                  <span class="badge-success" id="previewValidationTag">Ready to Simulate</span>
+                </div>
+                <div class="preview-spec-row">
+                  <div class="p-item">
+                    <span class="p-lbl">Target Environment:</span>
+                    <strong id="prevEnv">Urban</strong>
+                  </div>
+                  <div class="p-item">
+                    <span class="p-lbl">Atmosphere:</span>
+                    <strong id="prevTime">Day</strong>
+                  </div>
+                  <div class="p-item">
+                    <span class="p-lbl">Sensor Condition:</span>
+                    <strong id="prevSensor">Normal</strong>
+                  </div>
+                  <div class="p-item">
+                    <span class="p-lbl">Threat Pattern:</span>
+                    <strong id="prevPattern">Single Drone</strong>
+                  </div>
+                  <div class="p-item">
+                    <span class="p-lbl">Expected Scoring Target:</span>
+                    <strong id="prevTarget">85 pts</strong>
+                  </div>
+                </div>
+              </div>
+
+              <div class="config-footer-actions">
+                <button class="btn btn-secondary" id="btnGenerateScenarioSeed">GENERATE SCENARIO</button>
+                <button class="btn btn-primary" id="btnLaunchCustomConfigScenario">
+                  <span>Start Scenario in Simulator</span>
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- VIEW 6: PERFORMANCE ANALYTICS                                  -->
+        <!-- =============================================================== -->
+        <section class="view-panel" id="view-performance" style="display: none;">
+          <div class="page-header">
+            <div>
+              <h2 class="page-title">Performance Analytics</h2>
+              <p class="page-subtitle">Longitudinal training records, reaction latency trends, and competency evaluations.</p>
+            </div>
+            <div class="page-header-actions">
+              <button class="btn btn-secondary" id="btnExportAnalyticsCSV">Export Training Log</button>
+            </div>
+          </div>
+
+          <!-- Summary Competency Cards -->
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <span class="metric-title">Detection Competency</span>
+              <div class="metric-value text-emerald">Excellent</div>
+              <div class="metric-footer">
+                <span>92% baseline accuracy</span>
+                <span class="metric-subtext">Avg 3.1 sec</span>
+              </div>
+            </div>
+
+            <div class="metric-card">
+              <span class="metric-title">Classification Competency</span>
+              <div class="metric-value text-indigo">Good</div>
+              <div class="metric-footer">
+                <span>86% correct identification</span>
+                <span class="metric-subtext">High on Small UAV</span>
+              </div>
+            </div>
+
+            <div class="metric-card">
+              <span class="metric-title">Decision Competency</span>
+              <div class="metric-value text-indigo">Good</div>
+              <div class="metric-footer">
+                <span>84% protocol adherence</span>
+                <span class="metric-subtext">Safe escalation</span>
+              </div>
+            </div>
+
+            <div class="metric-card">
+              <span class="metric-title">Adaptive Progression</span>
+              <div class="metric-value text-accent">Improving</div>
+              <div class="metric-footer">
+                <span>+2 Difficulty levels</span>
+                <span class="metric-subtext">Over 10 sessions</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Performance Charts Grid -->
+          <div class="dashboard-grid-two mt-4">
+            <!-- Chart 1: Score & Latency Progression -->
+            <div class="card chart-card">
+              <div class="card-header">
+                <div>
+                  <h3 class="card-title">Score & Latency Progression</h3>
+                  <p class="card-subtitle">Session score vs threat detection latency over time.</p>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="chart-canvas-container" style="height: 280px;">
+                  <canvas id="scoreLatencyProgressionChart"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <!-- Chart 2: Threat Classification Accuracy Breakdown -->
+            <div class="card chart-card">
+              <div class="card-header">
+                <div>
+                  <h3 class="card-title">Threat Classification by Target Category</h3>
+                  <p class="card-subtitle">Identification precision across simulated drone profiles.</p>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="chart-canvas-container" style="height: 280px;">
+                  <canvas id="classificationAccuracyBarChart"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sensor Environmental Resilience Card -->
+          <div class="card mt-4">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title">Sensor Environmental Resilience</h3>
+                <p class="card-subtitle">Performance variance under degraded visibility and electromagnetic noise.</p>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="resilience-grid">
+                <div class="resilience-item">
+                  <div class="r-title">Normal Day (Baseline)</div>
+                  <div class="r-score font-mono text-emerald">92 / 100</div>
+                  <div class="r-bar-track"><div class="r-bar-fill bg-emerald" style="width: 92%;"></div></div>
+                  <div class="r-notes">Consistent detection speed, 0 false classifications.</div>
+                </div>
+
+                <div class="resilience-item">
+                  <div class="r-title">Reduced Visibility / Night</div>
+                  <div class="r-score font-mono text-amber">84 / 100</div>
+                  <div class="r-bar-track"><div class="r-bar-fill bg-amber" style="width: 84%;"></div></div>
+                  <div class="r-notes">Minor classification hesitation, stable decision protocol.</div>
+                </div>
+
+                <div class="resilience-item">
+                  <div class="r-title">Degraded Sensor / Clutter</div>
+                  <div class="r-score font-mono text-indigo">76 / 100</div>
+                  <div class="r-bar-track"><div class="r-bar-fill bg-indigo" style="width: 76%;"></div></div>
+                  <div class="r-notes">Sensor noise caused 1.2s detection delay; target for retraining.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- VIEW 7: TRAINEES MANAGEMENT & UNIT ROSTER                      -->
+        <!-- =============================================================== -->
+        <section class="view-panel" id="view-trainees" style="display: none;">
+          <div class="page-header">
+            <div>
+              <h2 class="page-title">Unit Performance & Trainees</h2>
+              <p class="page-subtitle">Squadron and cadet roster performance tracking, progress trends, and syllabus assignment.</p>
+            </div>
+            <div class="page-header-actions">
+              <button class="btn btn-primary" id="btnAddNewTraineeModal">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <span>Add Trainee Profile</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Unit Table Filters -->
+          <div class="scenario-filter-bar">
+            <div class="filter-pills" role="tablist">
+              <button class="filter-pill active" data-traineefilter="all">All Personnel (5)</button>
+              <button class="filter-pill" data-traineefilter="top">Top Performers</button>
+              <button class="filter-pill" data-traineefilter="needs">Needs Improvement</button>
+              <button class="filter-pill" data-traineefilter="recent">Recent Active</button>
+            </div>
+          </div>
+
+          <!-- Trainees Roster Table Card -->
+          <div class="card table-card">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title">Trainee Performance Roster</h3>
+                <p class="card-subtitle">Aggregate qualification metrics and difficulty level progression.</p>
+              </div>
+              <span class="badge-fictional">UNIT AIR-DEFENCE BATTALION</span>
+            </div>
+            <div class="card-body table-responsive">
+              <table class="enterprise-table" id="traineesTable">
+                <thead>
+                  <tr>
+                    <th>Trainee</th>
+                    <th>Sessions</th>
+                    <th>Current Level</th>
+                    <th>Avg Score</th>
+                    <th>Detection</th>
+                    <th>Classification</th>
+                    <th>Trend</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="traineesTableBody">
+                  <!-- Dynamic Trainee Rows Populated via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- VIEW 8: TRAINER CONSOLE                                        -->
+        <!-- =============================================================== -->
+        <section class="view-panel" id="view-trainer" style="display: none;">
+          <div class="page-header">
+            <div>
+              <h2 class="page-title">Trainer Console</h2>
+              <p class="page-subtitle">Supervisor override controls, real-time inject triggers, difficulty calibration, and feedback queue.</p>
+            </div>
+            <div class="page-header-actions">
+              <span class="badge-success">SUPERVISOR PRIVILEGES ACTIVE</span>
+            </div>
+          </div>
+
+          <div class="dashboard-grid-two">
+            <!-- Active Simulator Controls & Real-Time Injects -->
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h3 class="card-title">Real-Time Scenario Injects</h3>
+                  <p class="card-subtitle">Trigger live synthetic anomalies during active trainee simulator runs.</p>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="trainer-inject-list">
+                  <div class="inject-item">
+                    <div class="inject-meta">
+                      <strong>Simulate Sensor Jamming / Noise</strong>
+                      <p>Degrades visual clarity and introduces telemetry jitter in 3D viewport.</p>
+                    </div>
+                    <button class="btn btn-secondary btn-sm" id="btnInjectJamming">Trigger Inject</button>
+                  </div>
+
+                  <div class="inject-item">
+                    <div class="inject-meta">
+                      <strong>Secondary Decoy Threat</strong>
+                      <p>Spawns a secondary fast-moving simulated drone object to test priority triage.</p>
+                    </div>
+                    <button class="btn btn-secondary btn-sm" id="btnInjectDecoy">Trigger Decoy</button>
+                  </div>
+
+                  <div class="inject-item">
+                    <div class="inject-meta">
+                      <strong>Sudden Altitude Evasion</strong>
+                      <p>Causes the active simulated drone to execute an abrupt evasive dive.</p>
+                    </div>
+                    <button class="btn btn-secondary btn-sm" id="btnInjectEvasion">Trigger Evasion</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Syllabus Difficulty Management -->
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h3 class="card-title">Adaptive Threshold Calibration</h3>
+                  <p class="card-subtitle">Configure automated level advancement rules for the unit.</p>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="form-group mb-3">
+                  <label for="threshAdvance" class="form-label">Score Threshold for Level Advancement:</label>
+                  <input type="number" class="form-input" id="threshAdvance" value="85" min="70" max="95">
+                </div>
+                <div class="form-group mb-3">
+                  <label for="threshRetain" class="form-label">Score Threshold for Level Maintenance:</label>
+                  <input type="number" class="form-input" id="threshRetain" value="65" min="50" max="80">
+                </div>
+                <div class="form-group mb-3">
+                  <label for="targetDetTime" class="form-label">Target Detection Latency (Seconds):</label>
+                  <input type="number" class="form-input" id="targetDetTime" value="4.0" step="0.5" min="1.0" max="10.0">
+                </div>
+                <button class="btn btn-primary btn-block" id="btnSaveTrainerRules">Save Threshold Rules</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- VIEW 9: SETTINGS & SYSTEM DIAGNOSTICS                          -->
+        <!-- =============================================================== -->
+        <section class="view-panel" id="view-settings" style="display: none;">
+          <div class="page-header">
+            <div>
+              <h2 class="page-title">Settings & System Configuration</h2>
+              <p class="page-subtitle">Simulation environment parameters, synthetic telemetry models, and application settings.</p>
+            </div>
+          </div>
+
+          <div class="dashboard-grid-two">
+            <!-- App Configuration -->
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h3 class="card-title">General Preferences</h3>
+                  <p class="card-subtitle">Interface and simulation telemetry controls.</p>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="setting-toggle-row">
+                  <div>
+                    <strong>Procedural Audio Effects</strong>
+                    <p class="text-subtle text-sm">Synthetic radar sweeps and detection alert chimes via Web Audio API.</p>
+                  </div>
+                  <input type="checkbox" id="toggleAudioEffects" checked class="form-toggle">
+                </div>
+
+                <div class="setting-toggle-row mt-3">
+                  <div>
+                    <strong>High-Definition 3D Shadows</strong>
+                    <p class="text-subtle text-sm">Enables directional lighting and shadow projections in the Three.js viewport.</p>
+                  </div>
+                  <input type="checkbox" id="toggle3DShadows" checked class="form-toggle">
+                </div>
+
+                <div class="setting-toggle-row mt-3">
+                  <div>
+                    <strong>Continuous Flight Paths</strong>
+                    <p class="text-subtle text-sm">Simulated drone follows procedural spline maneuvers across airspace.</p>
+                  </div>
+                  <input type="checkbox" id="toggleSplineFlight" checked class="form-toggle">
+                </div>
+
+                <div class="mt-4 pt-3 border-top">
+                  <button class="btn btn-secondary btn-sm" id="btnResetAllDemoData">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                    <span>Reset All Demo Data to Defaults</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Technical Architecture Architecture Information -->
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h3 class="card-title">SIH System Architecture Reference</h3>
+                  <p class="card-subtitle">Production deployment specification as submitted in SIH26247.</p>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="arch-spec-list">
+                  <div class="arch-item">
+                    <span class="arch-label">Frontend Framework:</span>
+                    <span class="arch-val font-mono">React + TypeScript / Modern Vanilla ES6+</span>
+                  </div>
+                  <div class="arch-item">
+                    <span class="arch-label">Simulation Viewport:</span>
+                    <span class="arch-val font-mono">Three.js / WebGL Synthetic 3D Engine</span>
+                  </div>
+                  <div class="arch-item">
+                    <span class="arch-label">Backend Service:</span>
+                    <span class="arch-val font-mono">Python + FastAPI Microservices</span>
+                  </div>
+                  <div class="arch-item">
+                    <span class="arch-label">Database Persistence:</span>
+                    <span class="arch-val font-mono">PostgreSQL + TimescaleDB (Telemetry)</span>
+                  </div>
+                  <div class="arch-item">
+                    <span class="arch-label">Adaptive Engine:</span>
+                    <span class="arch-val font-mono">Rule-Based + Bayesian Knowledge Tracing</span>
+                  </div>
+                </div>
+
+                <div class="arch-disclaimer-box mt-3">
+                  <strong>Content Safety & Ethics Verification:</strong>
+                  <p class="text-xs mt-1">This application prototype adheres strictly to defense training simulation ethics. Weapon triggers, live missile control, real-world targeting, and autonomous attack functions are strictly excluded.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Role Selection / Landing Welcome Modal (shown on demand or role switch) -->
+  <div class="modal-backdrop" id="roleSelectModal" style="display: none;">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <div>
+          <span class="modal-supertitle">SIH 2026 • SIH26247 PROTOTYPE</span>
+          <h3 class="modal-title">Welcome to DRONE-TRAIN</h3>
+          <p class="modal-subtitle">AI-Enabled Drone & Counter-Drone Threat Simulation Trainer</p>
+        </div>
+        <button class="modal-close-btn" id="btnCloseRoleModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc-intro">Select your training role to enter the enterprise training simulation environment:</p>
+        <div class="role-cards-grid">
+          <div class="role-card-select" data-select-role="trainee">
+            <div class="role-icon bg-blue-subtle">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#0284c7" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
+            </div>
+            <h4>Trainee</h4>
+            <p>Practice simulated threat detection, radar classification, and safe training decision-making.</p>
+            <button class="btn btn-primary btn-block btn-sm mt-3">Enter as Trainee</button>
+          </div>
+
+          <div class="role-card-select" data-select-role="trainer">
+            <div class="role-icon bg-indigo-subtle">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#4f46e5" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            </div>
+            <h4>Trainer</h4>
+            <p>Configure scenarios, inject real-time training anomalies, and conduct After-Action Reviews.</p>
+            <button class="btn btn-secondary btn-block btn-sm mt-3">Enter as Trainer</button>
+          </div>
+
+          <div class="role-card-select" data-select-role="admin">
+            <div class="role-icon bg-slate-subtle">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#475569" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>
+            </div>
+            <h4>Unit Admin</h4>
+            <p>Monitor squadron readiness, longitudinal analytics, and unit-wide qualification rosters.</p>
+            <button class="btn btn-secondary btn-block btn-sm mt-3">Enter as Admin</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trainee Details Profile Modal -->
+  <div class="modal-backdrop" id="traineeProfileModal" style="display: none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title" id="tmodalName">Cadet R. Sharma</h3>
+        <button class="modal-close-btn" id="btnCloseTraineeModal">&times;</button>
+      </div>
+      <div class="modal-body" id="tmodalBody">
+        <!-- Content filled dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Stack -->
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+  <!-- Application Logic Scripts -->
+  <script src="js/state.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/simulation3d.js"></script>
+  <script src="js/scenarios.js"></script>
+  <script src="js/adaptive.js"></script>
+  <script src="js/aar.js"></script>
+  <script src="js/analytics.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
